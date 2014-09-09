@@ -117,8 +117,24 @@ class Suffix_Node{
             return;
         }
         
-        /*Prints Strings Using DFS*/
+        /*Prints Tree */
         void Print()
+        {
+            
+            std::cout<<"\nID:"<<id<<"\t["
+                    <<start<<","<<end<<"]"<<String.substr(start,end-start)
+                    <<"\tIsLeaf:"<<IsLeaf()<<"\tSize:"<<Childs.size()
+                    <<std::flush;
+            /**/       
+            for(NIter it = Childs.begin();it != Childs.end();++it)
+            {
+                if(*it != NULL) 
+                    (*it)->Print();
+            }
+        }
+        
+        /*Prints Leaves of tree Using DFS*/
+        void PrintLeaves()
         {
             Queue.push_back(String.substr(start,end-start));
             
@@ -129,19 +145,38 @@ class Suffix_Node{
                 std::cout<<endl;        
             }
             
-            /*std::cout<<"\nID:"<<id<<"\t["
-                    <<start<<","<<end<<"]"<<String.substr(start,end-start)
-                    <<"\tIsLeaf:"<<IsLeaf()<<std::flush;
-             */       
             for(NIter it = Childs.begin();it != Childs.end();++it)
             {
-                if(*it != NULL) (*it)->Print();
+                if(*it != NULL) (*it)->PrintLeaves();
                 //else cout<<"\n"<<id<<" has NULL";
             }
             
             Queue.pop_back();
         }
+        
+        /*Prints Strings with branches Using DFS*/
+        void PrintBranches()
+        {
+            Queue.push_back(String.substr(start,end-start));
             
+            if(Childs.size() >= 1 && id )
+            {
+                std::cout<<"\nID:"<<id<<"\t["
+                    <<start<<","<<end<<"]"<<String.substr(start,end-start)
+                    <<"\n"<<std::flush;
+                    
+                for(SIter it = Queue.begin();it != Queue.end();++it)
+                    std::cout<<*it<<std::flush;
+                std::cout<<endl;        
+            }
+            
+            for(NIter it = Childs.begin();it != Childs.end();++it)
+            {
+                if(*it != NULL) (*it)->PrintBranches();
+            }
+            
+            Queue.pop_back();
+        }            
     };
 
 int Suffix_Node::ID = 0;
@@ -154,6 +189,9 @@ int main(int argc,char *argv[])
     
     Suffix_Node S(0,0);
     S.SetString(argv[1]);
+    S.PrintBranches();
+    
+    cout<<endl;
     S.Print();
     cout<<endl;
     return 0 ;
