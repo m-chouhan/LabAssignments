@@ -55,6 +55,12 @@ class Suffix_Node{
                 Suffix_Node * node2 = new Suffix_Node(index2,end);
                 end = index2;
                 
+                while(Childs.size())
+                {
+                    node2->Childs.push_back(Childs.back());
+                    Childs.pop_back();
+                }
+                                    
                 if(index1 == node->end ) Childs.push_back(NULL);
                 else 
                 {
@@ -66,7 +72,10 @@ class Suffix_Node{
             } 
             
                             
-            //Exec this if index2 == end    
+            /*Exec this if index2 == end ie
+             * we need to search childs for common strings
+             * */
+                
             node->start = index1;
             for(NIter it = Childs.begin();it != Childs.end();++it)
             {
@@ -155,28 +164,36 @@ class Suffix_Node{
         }
         
         /*Prints Strings with branches Using DFS*/
-        void PrintBranches()
+        void PrintBranches(string prefix = "")
         {
-            Queue.push_back(String.substr(start,end-start));
+            //SIter back
+            //Queue.push_back(String.substr(start,end-start));
+            string substr = String.substr(start,end-start);
             
             if(Childs.size() >= 1 && id )
             {
                 std::cout<<"\nID:"<<id<<"\t["
-                    <<start<<","<<end<<"]"<<String.substr(start,end-start)
-                    <<"\n"<<std::flush;
+                    <<start<<","<<end<<"]"<<substr
+                    <<"\nWholestrings:"<<std::flush;
                     
-                for(SIter it = Queue.begin();it != Queue.end();++it)
-                    std::cout<<*it<<std::flush;
+                int i = 1;                   
+                while(i<=substr.length())
+                {
+                    Queue.push_back(prefix + substr.substr(0,i));
+                    std::cout<<Queue.back()<<"\t";
+                    i++;
+                }    
                 std::cout<<endl;        
             }
             
             for(NIter it = Childs.begin();it != Childs.end();++it)
             {
-                if(*it != NULL) (*it)->PrintBranches();
+                if(*it != NULL) (*it)->PrintBranches(prefix+substr);
             }
             
-            Queue.pop_back();
-        }            
+            //Queue.pop_back();
+        }
+                    
     };
 
 int Suffix_Node::ID = 0;
@@ -193,7 +210,7 @@ int main(int argc,char *argv[])
     
     cout<<endl;
     S.Print();
-    cout<<endl;
+    cout<<endl; 
     return 0 ;
 }
 
