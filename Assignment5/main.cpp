@@ -1,4 +1,10 @@
 
+/*Assignment 5:
+ * Printing the longest substring using suffix tree
+ * Author: Mahendra Chouhan
+ *         14CS60R12
+ */ 
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -23,14 +29,6 @@ class Suffix_Node{
         static int ID;
         static string String;
         static Strlist Queue; 
-        public:
-        Suffix_Node(int start,int end)
-        {
-            this->start = start;
-            this->end = end;
-            id = ID++;
-        }
-        private:
         bool IsLeaf()
         {
             NIter it;
@@ -50,8 +48,7 @@ class Suffix_Node{
 
             /*TODO:  Splitting when index2 != end */            
             if( index2 < end )
-            {
-                
+            {                
                 Suffix_Node * node2 = new Suffix_Node(index2,end);
                 end = index2;
                 
@@ -70,12 +67,10 @@ class Suffix_Node{
                 Childs.push_back(node2);                
                 return;     
             } 
-            
-                            
+                                        
             /*Exec this if index2 == end ie
              * we need to search childs for common strings
              * */
-                
             node->start = index1;
             for(NIter it = Childs.begin();it != Childs.end();++it)
             {
@@ -89,12 +84,46 @@ class Suffix_Node{
             Childs.push_back(node);
             return;
         }
+        /*Prints Strings of nodes with branches Using DFS*/
+        void PrintBranches(string prefix )
+        {
+            string substr = String.substr(start,end-start);
+            
+            if(Childs.size() >= 1 && id )
+            {
+                std::cout<<"\nID:"<<id<<"\t["
+                    <<start<<","<<end<<"]"<<substr
+                    <<"\nWholestrings:"<<std::flush;
+                    
+                int i = 1;                   
+                while(i<=substr.length())
+                {
+                    Queue.push_back(prefix + substr.substr(0,i));
+                    std::cout<<Queue.back()<<"\t";
+                    i++;
+                }    
+                std::cout<<endl;        
+            }
+            
+            for(NIter it = Childs.begin();it != Childs.end();++it)
+            {
+                if(*it != NULL) (*it)->PrintBranches(prefix+substr);
+            }
+            
+        }
         
         public:
+        Suffix_Node(int start,int end)
+        {
+            this->start = start;
+            this->end = end;
+            id = ID++;
+        }
+
         void SetString(string str)
         {
                 String = str;
-                const char *ptr = String.c_str();
+                //const char *ptr = String.c_str();
                 int i = 0,length = String.length();
                 
                 /*Loop over to create diff suffixes and try to  push them*/
@@ -112,15 +141,11 @@ class Suffix_Node{
                             break;
                         }
                         
-                    }
-                    
+                    }                    
                     /*No Child contains this substrings
                      * so create a new child*/
                     if(it == Childs.end())
-                    {
-                        Childs.push_back(node);
-                    }
-                        
+                        Childs.push_back(node);                        
                     i++;
                 } 
             return;
@@ -128,8 +153,7 @@ class Suffix_Node{
         
         /*Prints Tree */
         void Print()
-        {
-            
+        {            
             std::cout<<"\nID:"<<id<<"\t["
                     <<start<<","<<end<<"]"<<String.substr(start,end-start)
                     <<"\tIsLeaf:"<<IsLeaf()<<"\tSize:"<<Childs.size()
@@ -163,35 +187,17 @@ class Suffix_Node{
             Queue.pop_back();
         }
         
-        /*Prints Strings with branches Using DFS*/
-        void PrintBranches(string prefix = "")
+        /*(Wrappers)*/
+        /*Prints Strings of nodes with branches Using DFS*/        
+        Strlist & PrintBranches()
         {
-            //SIter back
-            //Queue.push_back(String.substr(start,end-start));
-            string substr = String.substr(start,end-start);
-            
-            if(Childs.size() >= 1 && id )
-            {
-                std::cout<<"\nID:"<<id<<"\t["
-                    <<start<<","<<end<<"]"<<substr
-                    <<"\nWholestrings:"<<std::flush;
-                    
-                int i = 1;                   
-                while(i<=substr.length())
-                {
-                    Queue.push_back(prefix + substr.substr(0,i));
-                    std::cout<<Queue.back()<<"\t";
-                    i++;
-                }    
-                std::cout<<endl;        
-            }
-            
-            for(NIter it = Childs.begin();it != Childs.end();++it)
-            {
-                if(*it != NULL) (*it)->PrintBranches(prefix+substr);
-            }
-            
-            //Queue.pop_back();
+            PrintBranches("");
+            return Queue;
+        }
+        
+        Strlist& getList()
+        {
+                return Queue;
         }
                     
     };
@@ -207,6 +213,7 @@ int main(int argc,char *argv[])
     Suffix_Node S(0,0);
     S.SetString(argv[1]);
     S.PrintBranches();
+    Strlist list = S.getList();
     
     cout<<endl;
     S.Print();
