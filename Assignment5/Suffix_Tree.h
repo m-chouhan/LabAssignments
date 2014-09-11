@@ -3,26 +3,34 @@
 //#define SUFFIX_TREE
 
 #include <vector>
+#include <queue>
 #include <string>
 #include <algorithm>
 
 
 class Suffix_Node;
-typedef vector<Suffix_Node *> Nodelist;
+typedef std::vector<Suffix_Node *> Nodelist;
 typedef Nodelist::iterator NIter;
 
-typedef vector<string> Strlist;
+typedef std::vector<std::string> Strlist;
 typedef Strlist::iterator SIter;
 
-
+struct Wrapper{
+        int depth;
+        Suffix_Node *node;
+        Wrapper(int d,Suffix_Node *n) : depth(d),node(n) {}
+    };
 
 class Suffix_Node{
         
         Nodelist Childs;
         int start,end,id;
+        /*This members will be shared by all instances of the class*/
         static int ID;
-        static string String;
-        static Strlist Queue; 
+        static std::string String;
+        static Strlist List;
+        static std::queue<Wrapper> Q;
+         
         bool IsLeaf()
         {
             NIter it;
@@ -31,6 +39,7 @@ class Suffix_Node{
             
             return ( Childs.begin() == Childs.end() || it != Childs.end() );
         }
+        
         /* Pushes string into childs or as one of its child */
         void add(Suffix_Node * node)
         {
@@ -79,9 +88,9 @@ class Suffix_Node{
             return;
         }
         /*Prints Strings of nodes with branches Using DFS*/
-        void PrintBranches(string prefix)
+        void PrintBranches(std::string prefix )
         {
-            string substr = String.substr(start,end-start);
+            std::string substr = String.substr(start,end-start);
             
             if(Childs.size() >= 1 && id )
             {
@@ -92,11 +101,11 @@ class Suffix_Node{
                 int i = 1;                   
                 while(i<=substr.length())
                 {
-                    Queue.push_back(prefix + substr.substr(0,i));
-                    std::cout<<Queue.back()<<"\t";
+                    List.push_back(prefix + substr.substr(0,i));
+                    std::cout<<List.back()<<"\t";
                     i++;
                 }    
-                std::cout<<endl;        
+                std::cout<<"\n";        
             }
             
             for(NIter it = Childs.begin();it != Childs.end();++it)
@@ -114,7 +123,7 @@ class Suffix_Node{
             id = ID++;
         }
 
-        void SetString(string str)
+        void SetString(std::string str)
         {
                 String = str;
                 //const char *ptr = String.c_str();
@@ -145,7 +154,7 @@ class Suffix_Node{
             return;
         }
         
-        /*Prints Tree */
+        /*Prints Tree with dfs */
         void Print()
         {            
             std::cout<<"\nID:"<<id<<"\t["
@@ -160,44 +169,55 @@ class Suffix_Node{
             }
         }
         
-        /*Prints Leaves of tree Using DFS*/
-        void PrintLeaves()
+        void PrintBFS(int level = 0)
         {
-            Queue.push_back(String.substr(start,end-start));
+            std::cout<<"\nLevel:"<<level<<"\tID:"<<id<<"\t["
+                    <<start<<","<<end<<"]"<<String.substr(start,end-start)
+                    <<"\tSize:"<<Childs.size()
+                    <<std::flush;
+            for(NIter it = Childs.begin();it != Childs.end();++it)
+                if(*it != NULL) 
+                    Q.push(Wrapper(level+1,*it));
+                
+            if(!level)
+            {
+                while(Q.size())
+                {
+                    Wrapper obj = Q.front();
+                    Q.pop();
+                    obj.node->PrintBFS(obj.depth);
+                }
+            }    
+        }
+        
+        /*Prints Leaves of tree Using DFS*/
+        void PrintLeaves(std::string prefix = "")
+        {
+            prefix += String.substr(start,end-start);
             
             if(IsLeaf())
-            {
-                for(SIter it = Queue.begin();it != Queue.end();++it)
-                    std::cout<<*it<<std::flush;
-                std::cout<<endl;        
-            }
-            
+                std::cout<<prefix<<"\n"<<std::flush;
+    
             for(NIter it = Childs.begin();it != Childs.end();++it)
-            {
-                if(*it != NULL) (*it)->PrintLeaves();
-                //else cout<<"\n"<<id<<" has NULL";
-            }
-            
-            Queue.pop_back();
+                if(*it != NULL) (*it)->PrintLeaves(prefix);
         }
         
         /*(Wrappers)*/
         /*Prints Strings of nodes with branches Using DFS*/        
-        Strlist & PrintBranches()
+        Strlist PrintSubstrings()
         {
             PrintBranches("");
-            return Queue;
+            return List;
         }
         
         Strlist& getList()
         {
-                return Queue;
+                return List;
         }
                     
     };
 
 int Suffix_Node::ID = 0;
-string Suffix_Node::String = "";
-Strlist Suffix_Node::Queue;
-
-//#else
+std::string Suffix_Node::String = "";
+Strlist Suffix_Node::List;
+std::queue<Wrapper> Suffix_Node::Q;

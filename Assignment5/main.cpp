@@ -8,7 +8,7 @@
 #include <iostream>
 #include <assert.h>
 
-#include "Suffix_Tree.cpp"
+#include "Suffix_Tree.h"
 
 using namespace std;
 
@@ -19,10 +19,11 @@ int main(int argc,char *argv[])
     Suffix_Node S(0,0);
     S.SetString(argv[1]);
     
-    Strlist list = S.PrintBranches();
-    
+    Strlist list = S.PrintSubstrings();
     cout<<endl;
-    S.Print();
+    
+    S.PrintBFS();
+    
     cout<<endl; 
     return 0 ;
 }
